@@ -249,7 +249,7 @@ class Number {
 
 
 int main() {
-    Number num1("100.3733232");
+    Number num1("100.3733233");
     Number num2("90.023823");
 
     Number resultAdd = num1 + num2;
