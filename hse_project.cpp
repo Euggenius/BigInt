@@ -33,10 +33,37 @@ class Number {
         // size_t decimalPartLength;
         // bool is_positive;
 
+        vector<char> multiplyCombined(const vector<char>& num1, const vector<char>& num2) const {
+            vector<char> result(num1.size() + num2.size(), 0);
+
+            for (int i = num1.size() - 1; i >= 0; --i) {
+                char carry = 0;
+                for (int j = num2.size() - 1; j >= 0 || carry != 0; --j) {
+                    char current = result[i + j + 1] + num1[i] * (j >= 0 ? num2[j] : 0) + carry;
+                    result[i + j + 1] = current % 10;
+                    carry = current / 10;
+                }
+            }
+
+            return result;
+        }
+
     public:
         using enum Sign;
 
-        Number() {}
+        Number(const vector<char>& integerPart_, const vector<char>& decimalPart_, const Sign sign_ = Positive) {
+            integerPart = integerPart_;
+            decimalPart = decimalPart_;
+            sign = sign_;
+
+            while (!decimalPart.empty() && !decimalPart.back()) {
+                decimalPart.pop_back();
+            }
+
+            if (*integerPart.begin() == 0) {
+                sign = Positive;
+            }
+        }
 
         Number(const string& numberStr) {
             stringstream ss(numberStr);
@@ -105,10 +132,8 @@ class Number {
             reverse(resultInteger.begin(), resultInteger.end());
             reverse(resultDecimal.begin(), resultDecimal.end());
 
-            Number result;
-            result.integerPart = resultInteger;
-            result.decimalPart = resultDecimal;
-            result.sign = Positive;
+            Number result(resultInteger, resultDecimal);
+
             return result;
         }
 
@@ -163,10 +188,34 @@ class Number {
             reverse(resultInteger.begin(), resultInteger.end());
             reverse(resultDecimal.begin(), resultDecimal.end());
 
-            Number result;
-            result.integerPart = resultInteger;
-            result.decimalPart = resultDecimal;
-            result.sign = Positive;
+            Number result(resultInteger, resultDecimal, sign);
+
+            return result;
+        }
+
+        Number operator*(const Number& other) const {
+            vector<char> num1Combined = integerPart;
+            num1Combined.insert(num1Combined.end(), decimalPart.begin(), decimalPart.end());
+
+            vector<char> num2Combined = other.integerPart;
+            num2Combined.insert(num2Combined.end(), other.decimalPart.begin(), other.decimalPart.end());
+
+            vector<char> resultCombined = multiplyCombined(num1Combined, num2Combined);
+
+            vector<char> resultInteger (resultCombined.begin(), resultCombined.end() - decimalPart.size() - other.decimalPart.size());
+            vector<char> resultDecimal (resultCombined.end() - decimalPart.size() - other.decimalPart.size(), resultCombined.end());
+            Sign resultSign = (sign == other.sign) ? Positive : Negative;
+
+            while (!resultInteger.empty() && !*resultInteger.begin()) {
+                resultInteger.erase(resultInteger.begin());
+            }
+
+            if (resultInteger.empty()) {
+                resultInteger.push_back(0);
+            }
+
+            Number result(resultInteger, resultDecimal, resultSign);
+
             return result;
         }
 
@@ -249,7 +298,7 @@ class Number {
 
 
 int main() {
-    Number num1("100.3733233");
+    Number num1("100.3733232");
     Number num2("90.023823");
 
     Number resultAdd = num1 + num2;
@@ -257,6 +306,7 @@ int main() {
     cout << num1 << ' ' << num2 << '\n' << '\n';
     cout << "Subtraction: " << (num1 - num2) << '\n';
     cout << "Addition: " << resultAdd << '\n';
+    cout << "Multiplication: " << num1 * num2 << '\n';
 
     return 0;
 }
