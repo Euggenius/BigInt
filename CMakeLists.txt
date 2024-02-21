@@ -1,0 +1,6 @@
+cmake_minimum_required(VERSION 3.0)
+project(BigInt)
+add_library(hse_project hse_project.cpp)
+set(CMAKE_CXX_STANDARD 17)
+add_executable(main main.cpp)
+target_link_libraries(main hse_project)
