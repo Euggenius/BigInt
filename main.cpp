@@ -5,15 +5,15 @@
 void find_PI() {
     auto start = chrono::high_resolution_clock::now();
 
-    Number Pi("0");
-    Number hex("1");
+    Number Pi(0);
+    Number hex(1);
     for(int k = 0; k < 0.8 * Number::precision + 5; k++) {
-        Number sec = Number("4") / Number(to_string(8 * k + 1));
-        Number third = Number("2") / Number(to_string(8 * k + 4));
-        Number fourth = Number("1") / Number(to_string(8 * k + 5));
-        Number fifth = Number("1") / Number(to_string(8 * k + 6));
+        Number sec = Number(4) / Number(to_string(8 * k + 1));
+        Number third = Number(2) / Number(to_string(8 * k + 4));
+        Number fourth = Number(1) / Number(to_string(8 * k + 5));
+        Number fifth = Number(1) / Number(to_string(8 * k + 6));
         Pi = Pi + (sec - third - fourth - fifth) * hex;
-        hex = hex / Number("16");
+        hex = hex / Number(16);
     }
 
     cout << Pi << '\n';
@@ -30,7 +30,7 @@ int main() {
 
     cout << "Enter Pi precision: ";
     cin >> precision;
-    
+
     Number::precision = precision;
 
     find_PI();

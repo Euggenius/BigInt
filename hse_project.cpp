@@ -1,12 +1,11 @@
 #include "hse_project.h"
 
-Number findApproximateDivision(const Number& divisor) {
+Number findApproximateDivision(const Number& dividend, const Number& divisor) {
     Number low("0");
     Number high("1");
-    Number epsilon("1");
+    Number epsilon("0.5");
 
     const Number tenConst("10");
-    const Number oneConst("1");
     const Number oneTenthConst("0.1");
     const Number oneSecondConst("0.5");
 
@@ -14,7 +13,9 @@ Number findApproximateDivision(const Number& divisor) {
         high = high * tenConst;
     }
 
-    for (size_t i = 0; i < Number::precision + 5; ++i) {
+    high *= dividend;
+
+    for (size_t i = 0; i < Number::precision + 10; ++i) {
         epsilon = epsilon * oneTenthConst;
     }
 
@@ -22,20 +23,24 @@ Number findApproximateDivision(const Number& divisor) {
         Number mid = (low + high) * oneSecondConst;
         Number multiplyResult = mid * divisor;
 
-        if (multiplyResult > oneConst) {
+        if (multiplyResult > dividend) {
             high = mid;
         } else {
             low = mid;
-            if (multiplyResult == oneConst) {
+            if (multiplyResult == dividend) {
                 break;
             }
         }
     }
 
+    low += epsilon;
     vector<char> decimalPartCropped(low.decimalPart.begin(), min(low.decimalPart.begin() + Number::precision + 5, low.decimalPart.end()));
+    
+    while (!decimalPartCropped.empty() && !decimalPartCropped.back()) {
+        decimalPartCropped.pop_back();
+    }
 
     low.decimalPart = decimalPartCropped;
-    low.sign = divisor.sign;
 
     return low;
 }
@@ -80,9 +85,7 @@ Number Number::operator+(const Number& other) const {
     reverse(resultInteger.begin(), resultInteger.end());
     reverse(resultDecimal.begin(), resultDecimal.end());
 
-    Number result(resultInteger, resultDecimal);
-
-    return result;
+    return Number(resultInteger, resultDecimal);
 }
 
 Number Number::operator-(const Number& other) const {
@@ -136,9 +139,7 @@ Number Number::operator-(const Number& other) const {
     reverse(resultInteger.begin(), resultInteger.end());
     reverse(resultDecimal.begin(), resultDecimal.end());
 
-    Number result(resultInteger, resultDecimal, sign);
-
-    return result;
+    return Number(resultInteger, resultDecimal, sign);
 }
 
 Number Number::operator*(const Number& other) const {
@@ -162,18 +163,27 @@ Number Number::operator*(const Number& other) const {
         resultInteger.push_back(0);
     }
 
-    Number result(resultInteger, resultDecimal, resultSign);
-
-    return result;
+    return Number(resultInteger, resultDecimal, resultSign);
 }
 
 Number Number::operator/(const Number& other) const {
-    if (other.sign == Sign::Negative){
-        Number result = -*this * findApproximateDivision(-other);
-        return result;
+
+    if (other == Number("0")) {
+        throw runtime_error("Division by zero is not allowed.");
+    }
+
+    if (other.sign == Sign::Positive){
+        if (sign == Sign::Positive){
+            return findApproximateDivision(*this, other);
+        } else {
+            return -findApproximateDivision(-*this, other);
+        }
     } else {
-        Number result = *this * findApproximateDivision(other);
-        return result;
+        if (sign == Sign::Positive){
+            return -findApproximateDivision(*this, -other);
+        } else {
+            return findApproximateDivision(-*this, -other);
+        }
     }
 }
 
@@ -181,6 +191,22 @@ Number Number::operator-() const {
     Number result = *this;
     result.sign = (result.sign == Sign::Positive) ? Sign::Negative : Sign::Positive;
     return result;
+}
+
+Number Number::operator+=(const Number& other) {
+    return *this = *this + other;
+}
+
+Number Number::operator-=(const Number& other) {
+    return *this = *this - other;
+}
+
+Number Number::operator*=(const Number& other) {
+    return *this = *this * other;
+}
+
+Number Number::operator/=(const Number& other) {
+    return *this = *this / other;
 }
 
 bool Number::operator==(const Number& other) const {

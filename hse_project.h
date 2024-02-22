@@ -5,6 +5,7 @@
 #include <vector>
 #include <sstream>
 #include <algorithm>
+#include <stdexcept>
 
 using namespace std;
 
@@ -46,10 +47,77 @@ class Number {
             return result;
         }
 
-        friend Number findApproximateDivision(const Number& divisor);
+        friend Number findApproximateDivision(const Number& dividend, const Number& divisor);
 
     public:
         static size_t precision;
+
+        Number(int intValue) {
+            sign = (intValue >= 0) ? Sign::Positive : Sign::Negative;
+
+            while (intValue > 0) {
+                char digit = intValue % 10;
+                intValue /= 10;
+                integerPart.insert(integerPart.begin(), digit);
+            }
+        }
+
+        Number(unsigned unsignedValue) {
+            while (unsignedValue > 0) {
+                char digit = unsignedValue % 10;
+                unsignedValue /= 10;
+                integerPart.insert(integerPart.begin(), digit);
+            }
+        }
+
+        Number(long long longValue) {
+            sign = (longValue >= 0) ? Sign::Positive : Sign::Negative;
+
+            while (longValue > 0) {
+                char digit = longValue % 10;
+                longValue /= 10;
+                integerPart.insert(integerPart.begin(), digit);
+            }
+        }
+
+        Number(unsigned long long unsignedLongValue) {
+            while (unsignedLongValue > 0) {
+                char digit = unsignedLongValue % 10;
+                unsignedLongValue /= 10;
+                integerPart.insert(integerPart.begin(), digit);
+            }
+        }
+
+        Number(double doubleValue) {
+            stringstream ss(to_string(doubleValue));
+            char ch;
+            
+            sign = (doubleValue >= 0) ? Sign::Positive : Sign::Negative;
+
+            while (ss.get(ch) && ch != '.') {
+                if (isdigit(ch)) {
+                    integerPart.push_back(ch - '0');
+                }
+            }
+
+            while (ss.get(ch)) {
+                if (isdigit(ch)) {
+                    decimalPart.push_back(ch - '0');
+                }
+            }
+
+            while (!decimalPart.empty() && !decimalPart.back()) {
+                decimalPart.pop_back();
+            }
+
+            if (integerPart.empty()){
+                integerPart.push_back(0);
+            }
+
+            if (decimalPart.empty() && *integerPart.begin() == 0) {
+                sign = Sign::Positive;
+            }
+        }
 
         Number(const vector<char>& integerPart_, const vector<char>& decimalPart_, const Sign sign_ = Sign::Positive) {
             integerPart = integerPart_;
@@ -105,6 +173,10 @@ class Number {
         Number operator*(const Number& other) const;
         Number operator/(const Number& other) const;
         Number operator-() const;
+        Number operator+=(const Number& other);
+        Number operator-=(const Number& other);
+        Number operator*=(const Number& other);
+        Number operator/=(const Number& other);
 
         bool operator==(const Number& other) const;
         bool operator!=(const Number& other) const;
