@@ -1,4 +1,0 @@
-/Users/evgenijbojko/Downloads/github-hse-project/BigInt/build/CMakeFiles/hse_project.dir
-/Users/evgenijbojko/Downloads/github-hse-project/BigInt/build/CMakeFiles/main.dir
-/Users/evgenijbojko/Downloads/github-hse-project/BigInt/build/CMakeFiles/edit_cache.dir
-/Users/evgenijbojko/Downloads/github-hse-project/BigInt/build/CMakeFiles/rebuild_cache.dir
