@@ -54,11 +54,16 @@ class Number {
 
         Number(int intValue) {
             sign = (intValue >= 0) ? Sign::Positive : Sign::Negative;
+            intValue = abs(intValue);
 
             while (intValue > 0) {
                 char digit = intValue % 10;
                 intValue /= 10;
                 integerPart.insert(integerPart.begin(), digit);
+            }
+
+            if (integerPart.empty()){
+                integerPart.push_back(0);
             }
         }
 
@@ -68,15 +73,24 @@ class Number {
                 unsignedValue /= 10;
                 integerPart.insert(integerPart.begin(), digit);
             }
+
+            if (integerPart.empty()){
+                integerPart.push_back(0);
+            }
         }
 
         Number(long long longValue) {
             sign = (longValue >= 0) ? Sign::Positive : Sign::Negative;
+            longValue = abs(longValue);
 
             while (longValue > 0) {
                 char digit = longValue % 10;
                 longValue /= 10;
                 integerPart.insert(integerPart.begin(), digit);
+            }
+
+            if (integerPart.empty()){
+                integerPart.push_back(0);
             }
         }
 
@@ -85,6 +99,10 @@ class Number {
                 char digit = unsignedLongValue % 10;
                 unsignedLongValue /= 10;
                 integerPart.insert(integerPart.begin(), digit);
+            }
+
+            if (integerPart.empty()){
+                integerPart.push_back(0);
             }
         }
 
@@ -177,6 +195,9 @@ class Number {
         Number operator-=(const Number& other);
         Number operator*=(const Number& other);
         Number operator/=(const Number& other);
+
+        vector<char> getIntegerPart() const;
+        vector<char> getDecimalPart() const;
 
         bool operator==(const Number& other) const;
         bool operator!=(const Number& other) const;

@@ -1,13 +1,13 @@
 #include "hse_project.h"
 
 Number findApproximateDivision(const Number& dividend, const Number& divisor) {
-    Number low("0");
-    Number high("1");
-    Number epsilon("0.5");
+    Number low(0);
+    Number high(1);
+    Number epsilon(5E-1);
 
-    const Number tenConst("10");
-    const Number oneTenthConst("0.1");
-    const Number oneSecondConst("0.5");
+    const Number tenConst(10);
+    const Number oneTenthConst(1E-1);
+    const Number oneSecondConst(5E-1);
 
     for (size_t i = 0; i < divisor.decimalPart.size(); ++i) {
         high = high * tenConst;
@@ -168,7 +168,7 @@ Number Number::operator*(const Number& other) const {
 
 Number Number::operator/(const Number& other) const {
 
-    if (other == Number("0")) {
+    if (other == Number(0)) {
         throw runtime_error("Division by zero is not allowed.");
     }
 
@@ -207,6 +207,14 @@ Number Number::operator*=(const Number& other) {
 
 Number Number::operator/=(const Number& other) {
     return *this = *this / other;
+}
+
+vector<char> Number::getIntegerPart() const {
+    return integerPart;
+}
+
+vector<char> Number::getDecimalPart() const {
+    return decimalPart;
 }
 
 bool Number::operator==(const Number& other) const {
@@ -262,14 +270,14 @@ ostream& operator<<(ostream& os, const Number& number) {
         os << (int)number.integerPart[i];
     }
 
-    if (number.integerPart.empty()) os << '0';
+    // if (number.integerPart.empty()) os << '0';
 
     if (!number.decimalPart.empty()) {
         os << '.';
 
-        for (size_t i = 0; i < min(number.decimalPart.size(), Number::precision); ++i) {
-        os << (int)number.decimalPart[i];
-    }
+        for (int i = 0; i < min(number.decimalPart.size(), Number::precision); ++i) {
+            os << (int)number.decimalPart[i];
+        }
     }
 
     return os;
